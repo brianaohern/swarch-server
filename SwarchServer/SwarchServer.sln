@@ -1,18 +1,18 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwarchServer", "SwarchServer\SwarchServer.csproj", "{870D8023-83A3-48CA-8E54-F1587BD27EAA}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwarchServer", "SwarchServer\SwarchServer.csproj", "{72E6F9D0-DACB-4F65-9DFA-CCC23BFB005F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{870D8023-83A3-48CA-8E54-F1587BD27EAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{870D8023-83A3-48CA-8E54-F1587BD27EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{870D8023-83A3-48CA-8E54-F1587BD27EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{870D8023-83A3-48CA-8E54-F1587BD27EAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72E6F9D0-DACB-4F65-9DFA-CCC23BFB005F}.Debug|x86.ActiveCfg = Debug|x86
+		{72E6F9D0-DACB-4F65-9DFA-CCC23BFB005F}.Debug|x86.Build.0 = Debug|x86
+		{72E6F9D0-DACB-4F65-9DFA-CCC23BFB005F}.Release|x86.ActiveCfg = Release|x86
+		{72E6F9D0-DACB-4F65-9DFA-CCC23BFB005F}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

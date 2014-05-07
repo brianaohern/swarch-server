@@ -1,0 +1,4 @@
+C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\SwarchServer.exe
+C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\SwarchServer.pdb
+C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.exe
+C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.pdb
