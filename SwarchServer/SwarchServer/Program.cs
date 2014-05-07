@@ -61,11 +61,15 @@ namespace SwarchServer
             Program.db = new SQLiteDatabase();
             playerSockets[0].writer.WriteLine("connect&start");
             Console.WriteLine("Player connected. Begin playing.");
+            Console.WriteLine("Print?");
+            if (Console.ReadLine() == "yes")
+            {
+                Program.db.PrintDB();
+            }
             playing = true;
 
             while (playing)
             {
-
             }
         }
     }

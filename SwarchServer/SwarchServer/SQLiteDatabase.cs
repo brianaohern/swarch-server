@@ -227,5 +227,14 @@ namespace SwarchServer
                 return false;
             }
         }
+
+        public void PrintDB()
+        {
+            DataTable table = this.GetDataTable("select USERNAME \"Username\", PASSWORD \"Password\" from USERS");
+            foreach (DataRow r in table.Rows)
+            {
+                Console.WriteLine(r["Username"].ToString() + " " + r["Password"].ToString());
+            }
+        }
     }
 }

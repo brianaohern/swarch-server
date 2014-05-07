@@ -4,3 +4,9 @@ C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug
 C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.pdb
 C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\System.Data.SQLite.dll
 C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\System.Data.SQLite.pdb
+C:\Users\bohern\Documents\GitHub\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.exe
+C:\Users\bohern\Documents\GitHub\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.pdb
+C:\Users\bohern\Documents\GitHub\swarch-server\SwarchServer\SwarchServer\bin\Debug\SwarchServer.exe
+C:\Users\bohern\Documents\GitHub\swarch-server\SwarchServer\SwarchServer\bin\Debug\SwarchServer.pdb
+C:\Users\bohern\Documents\GitHub\swarch-server\SwarchServer\SwarchServer\bin\Debug\System.Data.SQLite.pdb
+C:\Users\bohern\Documents\GitHub\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.csprojResolveAssemblyReference.cache
