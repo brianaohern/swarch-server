@@ -1,6 +1,0 @@
-C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\SwarchServer.exe.config
-C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\Debug\SwarchServer.csprojResolveAssemblyReference.cache
-C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\SwarchServer.exe
-C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\SwarchServer.pdb
-C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\Debug\SwarchServer.exe
-C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\Debug\SwarchServer.pdb
