@@ -2,5 +2,3 @@ C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\Swa
 C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\bin\Debug\SwarchServer.pdb
 C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.exe
 C:\Users\Cheddar\Documents\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.pdb
-C:\Users\bohern\Documents\GitHub\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.exe
-C:\Users\bohern\Documents\GitHub\swarch-server\SwarchServer\SwarchServer\obj\x86\Debug\SwarchServer.pdb
