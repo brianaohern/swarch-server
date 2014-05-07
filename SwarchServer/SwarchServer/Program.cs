@@ -100,6 +100,7 @@ namespace SwarchServer
 
                     if (tempData == "logins")
                     {
+                        //insert code to check length of string
                         username = data.Split('&')[1];
                         password = data.Split('&')[2];
 
@@ -112,9 +113,10 @@ namespace SwarchServer
                             bool entered = false; // Whether or not the username exists in the database
                             Console.WriteLine("Inserting user data.");
 
+                            User user = Program.db.GetUser(username, password);
                             DataTable user;
                             String query = "select USERNAME \"Username\", PASSWORD \"Password\"";
-                            query += "from USERS";
+                            query += "from USERS WHERE Username=:Name";
                             user = Program.db.GetDataTable(query);
                             foreach (DataRow r in user.Rows)
                             {
