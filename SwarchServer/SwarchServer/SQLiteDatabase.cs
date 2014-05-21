@@ -146,7 +146,7 @@ namespace SwarchServer
             {
                 this.ExecuteNonQuery(String.Format("delete from {0} where {1};", tableName, where));
             }
-            catch (Exception fail)
+            catch
             {
                 Console.WriteLine("Failure in Delete");
                 //MessageBox.Show(fail.Message);
@@ -235,6 +235,17 @@ namespace SwarchServer
             {
                 Console.WriteLine(r["Username"].ToString() + " " + r["Password"].ToString());
             }
+        }
+
+        public DataTable GetUser(string username, string password)
+        {
+            DataTable user;
+
+            String query = "select USERNAME \"Username\", PASSWORD \"Password\"";
+            query += "from USERS WHERE USERNAME='" + username + "'";
+            user = GetDataTable(query);
+
+            return user;
         }
     }
 }

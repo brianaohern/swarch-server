@@ -19,6 +19,7 @@ namespace SwarchServer
         public static SQLiteDatabase db;
 
         public static bool playing = false;
+        public static bool gameWon = false;
 
         public static Random random = new Random();
 
@@ -91,15 +92,21 @@ namespace SwarchServer
             players[0].SendData();
             players[1].SendData();
 
+            
+
             while (playing)
             {
-                GameLoop();
+                if (!gameWon)
+                {
+                    GameLoop();
+                }
             }
         }
 
         // Main gameplay loop
         public static void GameLoop()
         {
+            
             // Send player positions every 100 milliseconds
             if (watch.ElapsedMilliseconds >= 100)
             {
@@ -121,7 +128,6 @@ namespace SwarchServer
             if (Math.Abs(players[0].x - players[1].x) < (players[0].size / 2 + players[1].size / 2)
                 && Math.Abs(players[0].z - players[1].z) < (players[0].size / 2 + players[1].size / 2))  // If the players are touching
             {
-                Console.WriteLine("Player collision");
                 if (players[0].size > players[1].size)
                 {
                     players[0].Eat(1);
@@ -214,10 +220,7 @@ namespace SwarchServer
                 bool entered = false; // Whether or not the username exists in the database
                 Console.WriteLine("Inserting user data.");
 
-                DataTable user;
-                String query = "select USERNAME \"Username\", PASSWORD \"Password\"";
-                query += "from USERS";
-                user = Program.db.GetDataTable(query);
+                DataTable user = Program.db.GetUser(username, password);
 
                 foreach (DataRow r in user.Rows)
                 {
@@ -249,6 +252,8 @@ namespace SwarchServer
             {
                 Console.WriteLine("Failed to insert user");
             }
+
+            Console.WriteLine("Test TEST");
         }
 
         public void HandleDirectionChange()
@@ -355,13 +360,24 @@ namespace SwarchServer
             if (type == 1) // Ate a player
             {
                 score += 2;
+                Program.getPlayerSockets()[0].writer.WriteLine("score&" + client + "&" + 2);
+                Program.getPlayerSockets()[1].writer.WriteLine("score&" + client + "&" + 2);
             }
             else if (type == 2) // Ate a pellet
             {
                 score += 1;
+                Program.getPlayerSockets()[0].writer.WriteLine("score&" + client + "&" + 1);
+                Program.getPlayerSockets()[1].writer.WriteLine("score&" + client + "&" + 1);
             }
 
             SendData();
+
+            if (score >= 10)
+            {
+                Program.getPlayerSockets()[0].writer.WriteLine("winner&" + client);
+                Program.getPlayerSockets()[1].writer.WriteLine("winner&" + client);
+                Program.gameWon = true;
+            }
         }
 
         public void SendData()
