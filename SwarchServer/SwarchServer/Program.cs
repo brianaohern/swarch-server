@@ -100,8 +100,8 @@ namespace SwarchServer
         // Main gameplay loop
         public static void GameLoop()
         {
-            // Send player positions every 200 milliseconds
-            if (watch.ElapsedMilliseconds >= 200)
+            // Send player positions every 100 milliseconds
+            if (watch.ElapsedMilliseconds >= 100)
             {
                 players[0].Update();
                 players[1].Update();
@@ -111,7 +111,7 @@ namespace SwarchServer
                 watch.Restart();
             }
 
-            //CheckPlayerCollisions();
+            CheckPlayerCollisions();
             CheckPelletCollisions();
         }
 
@@ -121,6 +121,7 @@ namespace SwarchServer
             if (Math.Abs(players[0].x - players[1].x) < (players[0].size / 2 + players[1].size / 2)
                 && Math.Abs(players[0].z - players[1].z) < (players[0].size / 2 + players[1].size / 2))  // If the players are touching
             {
+                Console.WriteLine("Player collision");
                 if (players[0].size > players[1].size)
                 {
                     players[0].Eat(1);
@@ -187,7 +188,6 @@ namespace SwarchServer
                     }
                     else if (tempData == "direction")
                     {
-                        Console.WriteLine("Received direction change signal from client " + client);
                         HandleDirectionChange();
                     }
                 }
@@ -309,8 +309,8 @@ namespace SwarchServer
             prevx = x;
             prevz = z;
 
-            x += xvelocity / 5; // Velocity divided by fps
-            z += zvelocity / 5;
+            x += xvelocity / 10; // Velocity divided by fps
+            z += zvelocity / 10;
 
             if (x < (-30.5 + size/2) || x > (30.5 - size/2) || z < (-15.5 + size/2) || z > (15.5 - size/2))
             {
