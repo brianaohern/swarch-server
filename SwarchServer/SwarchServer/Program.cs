@@ -81,6 +81,10 @@ namespace SwarchServer
             }
 
             // Send the start signal to the clients
+            while (players[0].username == "" || players[1].username == "")
+            {
+                // Do nothing
+            }
             playerSockets[0].writer.WriteLine("connect&start");
             playerSockets[1].writer.WriteLine("connect&start");
             Console.WriteLine("Players 1 and 2 connected. Begin playing.");
@@ -185,6 +189,7 @@ namespace SwarchServer
                 while (true)
                 {
                     PlayerSocket[] sockets = Program.getPlayerSockets();
+                    Console.WriteLine("Service for client " + client);
                     data = sockets[client - 1].reader.ReadLine();
                     tempData = data.Split('&')[0];
 
@@ -208,7 +213,17 @@ namespace SwarchServer
 
         public void HandleLogin()
         {
-            //insert code to check length of string
+            //insert code to check length of string - are username/password long enough?
+
+            Console.WriteLine("In HandleLogin for client " + client);
+
+            if (data.Split('&').Length < 2)
+            {
+                Console.WriteLine("Too few ampersands in signal. Send fail to client.");
+                Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + "fail");
+                return;
+            }
+
             username = data.Split('&')[1];
             password = data.Split('&')[2];
 
@@ -217,6 +232,17 @@ namespace SwarchServer
             insertData.Add("PASSWORD", password);
             try
             {
+                Console.WriteLine("Checking if other client is using this username.");
+                if (username == Program.players[client % 2].username)
+                {
+                    Console.WriteLine("Other client already signed in with this username. Send fail to client.");
+                    username = "";
+                    password = "";
+                    Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + "fail");
+                    return;
+                }
+                Console.WriteLine("This username is available.");
+
                 bool entered = false; // Whether or not the username exists in the database
                 Console.WriteLine("Inserting user data.");
 
@@ -224,6 +250,7 @@ namespace SwarchServer
 
                 foreach (DataRow r in user.Rows)
                 {
+                    
                     if (r["Username"].ToString() == username)
                     {
                         Console.WriteLine("Found a username match");
@@ -232,6 +259,7 @@ namespace SwarchServer
                             Console.WriteLine("Found a password match. Send data to client.");
                             Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + username);
                             entered = true;
+                            Program.players[client - 1].username = username;
                         }
                         else
                         {
@@ -246,18 +274,23 @@ namespace SwarchServer
                     Console.WriteLine("No username match. Create a new user. Send data to client.");
                     Program.db.Insert("USERS", insertData);
                     Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + username + "&" + password);
+                    Program.players[client - 1].username = username;
                 }
             }
             catch
             {
                 Console.WriteLine("Failed to insert user");
             }
-
-            Console.WriteLine("Test TEST");
         }
 
         public void HandleDirectionChange()
         {
+            if (data.Split('&').Length < 1)
+            {
+                Console.WriteLine("Too few ampersands in signal. Send fail to client.");
+                Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + "fail");
+                return;
+            }
             tempData = data.Split('&')[1];
             if (tempData == "0")
             {
@@ -285,6 +318,7 @@ namespace SwarchServer
     class PlayerObject
     {
         public int client;
+        public string username;
         private int score;
         public float x;
         public float z;
@@ -298,6 +332,7 @@ namespace SwarchServer
         public PlayerObject(int clientNumber)
         {
             client = clientNumber;
+            username = "";
             score = 0;
             x = Program.random.Next(-29, 30);
             z = Program.random.Next(-14, 15);
