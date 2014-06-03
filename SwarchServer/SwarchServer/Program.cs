@@ -96,19 +96,16 @@ namespace SwarchServer
             players[0].SendData();
             players[1].SendData();
 
-            
+            System.Timers.Timer timer = new System.Timers.Timer(100.0);
 
-            while (playing)
-            {
-                if (!gameWon)
-                {
-                    GameLoop();
-                }
-            }
+            timer.Elapsed += new ElapsedEventHandler(GameLoop);
+            timer.Start();
+
+            Thread.CurrentThread.Join(); // Wait until other threads cease before closing program
         }
 
         // Main gameplay loop
-        public static void GameLoop()
+        public static void GameLoop(object source, ElapsedEventArgs e)
         {
             
             // Send player positions every 100 milliseconds
@@ -226,6 +223,8 @@ namespace SwarchServer
 
             username = data.Split('&')[1];
             password = data.Split('&')[2];
+
+            username.Replace("'", "''");
 
             Dictionary<String, String> insertData = new Dictionary<String, String>();
             insertData.Add("USERNAME", username);
