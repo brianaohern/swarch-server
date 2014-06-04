@@ -23,7 +23,7 @@ namespace SwarchServer
 
         public static Random random = new Random();
 
-        public static PlayerObject[] players = new PlayerObject[2];
+        public static PlayerObject[] players = new PlayerObject[3];
         public static Pellet[] pellets = new Pellet[5];
 
         public static PlayerSocket[] getPlayerSockets()
@@ -32,7 +32,7 @@ namespace SwarchServer
         }
 
         static TcpListener listener;
-        static PlayerSocket[] playerSockets = new PlayerSocket[2];
+        static PlayerSocket[] playerSockets = new PlayerSocket[3];
 
         public static void Main()
         {
@@ -41,7 +41,7 @@ namespace SwarchServer
             listener.Start();
 
             // Connect both players
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < playerSockets.Length; i++)
             {
                 // Create a PlayerObject for this client
                 players[i] = new PlayerObject(i+1);
@@ -81,20 +81,30 @@ namespace SwarchServer
             }
 
             // Send the start signal to the clients
-            while (players[0].username == "" || players[1].username == "")
+            bool allSignedIn = false;
+            while (!allSignedIn)
             {
                 // Do nothing
+                if (players[0].username != "" && players[1].username != "" && players[2].username != "") {
+                    allSignedIn = true;
+                }
             }
-            playerSockets[0].writer.WriteLine("connect&start");
-            playerSockets[1].writer.WriteLine("connect&start");
-            Console.WriteLine("Players 1 and 2 connected. Begin playing.");
+
+            for (int i = 0; i < playerSockets.Length; i++)
+            {
+                playerSockets[i].writer.WriteLine("connect&start");
+            }
+
+            Console.WriteLine("All players connected. Begin playing.");
             playing = true;
             watch = new Stopwatch();
             watch.Start();
 
             Console.WriteLine("Sending initial player data.");
-            players[0].SendData();
-            players[1].SendData();
+            for (int i = 0; i < players.Length; i++)
+            {
+                players[i].SendData();
+            }
 
             System.Timers.Timer timer = new System.Timers.Timer(100.0);
 
@@ -112,11 +122,11 @@ namespace SwarchServer
                 // Send player positions every 100 milliseconds
                 if (watch.ElapsedMilliseconds >= 100)
                 {
-                    players[0].Update();
-                    players[1].Update();
-
-                    players[0].SendData();
-                    players[1].SendData();
+                    for (int i = 0; i < players.Length; i++)
+                    {
+                        players[i].Update();
+                        players[i].SendData();
+                    }
                     watch.Restart();
                 }
 
@@ -128,23 +138,54 @@ namespace SwarchServer
         // Check if the two players collided with each other
         public static void CheckPlayerCollisions()
         {
-            if (Math.Abs(players[0].x - players[1].x) < (players[0].size / 2 + players[1].size / 2)
-                && Math.Abs(players[0].z - players[1].z) < (players[0].size / 2 + players[1].size / 2))  // If the players are touching
+            for (int i = 0; i < 2; i++)
             {
-                if (players[0].size > players[1].size)
+                if (i == 0)
                 {
-                    players[0].Eat(1);
-                    players[1].ResetPosition();
+                    for (int j = 1; j < 3; j++)
+                    {
+                        if (Math.Abs(players[i].x - players[j].x) < (players[i].size / 2 + players[j].size / 2)
+                    && Math.Abs(players[i].z - players[j].z) < (players[i].size / 2 + players[j].size / 2))  // If the players are touching
+                        {
+                            if (players[i].size > players[j].size)
+                            {
+                                players[i].Eat(1);
+                                players[j].ResetPosition();
+                            }
+                            else if (players[i].size < players[j].size)
+                            {
+                                players[i].ResetPosition();
+                                players[j].Eat(1);
+                            }
+                            else if (players[i].size == players[j].size)
+                            {
+                                players[i].ResetPosition();
+                                players[j].ResetPosition();
+                            }
+                        }
+                    }
                 }
-                else if (players[0].size < players[1].size)
+                else if (i == 1)
                 {
-                    players[0].ResetPosition();
-                    players[1].Eat(1);
-                }
-                else if (players[0].size == players[1].size)
-                {
-                    players[0].ResetPosition();
-                    players[1].ResetPosition();
+                    if (Math.Abs(players[i].x - players[2].x) < (players[i].size / 2 + players[2].size / 2)
+                    && Math.Abs(players[i].z - players[2].z) < (players[i].size / 2 + players[2].size / 2))  // If the players are touching
+                    {
+                        if (players[i].size > players[2].size)
+                        {
+                            players[i].Eat(1);
+                            players[2].ResetPosition();
+                        }
+                        else if (players[i].size < players[2].size)
+                        {
+                            players[i].ResetPosition();
+                            players[2].Eat(1);
+                        }
+                        else if (players[i].size == players[2].size)
+                        {
+                            players[i].ResetPosition();
+                            players[2].ResetPosition();
+                        }
+                    }
                 }
             }
         }
@@ -152,7 +193,7 @@ namespace SwarchServer
         // Check if either of the players collided with any of the pellets
         public static void CheckPelletCollisions()
         {
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 5; j++)
                 {
@@ -197,6 +238,7 @@ namespace SwarchServer
                     }
                     else if (tempData == "direction")
                     {
+                        Console.WriteLine("Received direction change from client " + client);
                         HandleDirectionChange();
                     }
                 }
@@ -233,13 +275,27 @@ namespace SwarchServer
             try
             {
                 Console.WriteLine("Checking if other client is using this username.");
-                if (username == Program.players[client % 2].username)
+                if (client == 2)
                 {
-                    Console.WriteLine("Other client already signed in with this username. Send fail to client.");
-                    username = "";
-                    password = "";
-                    Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + "fail");
-                    return;
+                    if (username == Program.players[0].username)
+                    {
+                        Console.WriteLine("Other client already signed in with this username. Send fail to client.");
+                        username = "";
+                        password = "";
+                        Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + "fail");
+                        return;
+                    }
+                }
+                else if (client == 3)
+                {
+                    if (username == Program.players[0].username || username == Program.players[1].username)
+                    {
+                        Console.WriteLine("Other client already signed in with this username. Send fail to client.");
+                        username = "";
+                        password = "";
+                        Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + "fail");
+                        return;
+                    }
                 }
                 Console.WriteLine("This username is available.");
 
@@ -273,8 +329,10 @@ namespace SwarchServer
                 {
                     Console.WriteLine("No username match. Create a new user. Send data to client.");
                     Program.db.Insert("USERS", insertData);
-                    Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + client + "&" + username);
-                    Program.getPlayerSockets()[client].writer.WriteLine("login&" + client + "&" + username);
+                    for (int i = 0; i < Program.getPlayerSockets().Length; i++)
+                    {
+                        Program.getPlayerSockets()[i].writer.WriteLine("login&" + client + "&" + username);
+                    }
                     Program.players[client - 1].username = username;
                 }
             }
@@ -288,8 +346,7 @@ namespace SwarchServer
         {
             if (data.Split('&').Length < 1)
             {
-                Console.WriteLine("Too few ampersands in signal. Send fail to client.");
-                Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + "fail");
+                Console.WriteLine("Too few ampersands in signal. Not a valid direction change.");
                 return;
             }
             tempData = data.Split('&')[1];
@@ -365,6 +422,11 @@ namespace SwarchServer
 
         public void ResetPosition()
         {
+            if (client == 2)
+            {
+                Console.WriteLine("Reset position");
+            }
+
             x = Program.random.Next(-14, 15);
             z = Program.random.Next(-14, 15);
             prevx = x;
@@ -400,30 +462,42 @@ namespace SwarchServer
             if (type == 1) // Ate a player
             {
                 score += 10;
-                Program.getPlayerSockets()[0].writer.WriteLine("score&" + client + "&" + 10);
-                Program.getPlayerSockets()[1].writer.WriteLine("score&" + client + "&" + 10);
+                for (int i = 0; i < Program.getPlayerSockets().Length; i++)
+                {
+                    Program.getPlayerSockets()[i].writer.WriteLine("score&" + client + "&" + 10);
+                }
             }
             else if (type == 2) // Ate a pellet
             {
                 score += 1;
-                Program.getPlayerSockets()[0].writer.WriteLine("score&" + client + "&" + 1);
-                Program.getPlayerSockets()[1].writer.WriteLine("score&" + client + "&" + 1);
+                for (int i = 0; i < Program.getPlayerSockets().Length; i++)
+                {
+                    Program.getPlayerSockets()[i].writer.WriteLine("score&" + client + "&" + 1);
+                }
             }
 
             SendData();
 
             if (score >= 100)
             {
-                Program.getPlayerSockets()[0].writer.WriteLine("winner&" + client);
-                Program.getPlayerSockets()[1].writer.WriteLine("winner&" + client);
+                for (int i = 0; i < Program.getPlayerSockets().Length; i++)
+                {
+                    Program.getPlayerSockets()[i].writer.WriteLine("winner&" + client);
+                }
                 Program.gameWon = true;
             }
         }
 
         public void SendData()
         {
-            Program.getPlayerSockets()[0].writer.WriteLine("player&" + client + "&" + x + "&" + z + "&" + size + "&" + speed + "&" + direction + "&" + username);
-            Program.getPlayerSockets()[1].writer.WriteLine("player&" + client + "&" + x + "&" + z + "&" + size + "&" + speed + "&" + direction + "&" + username);
+            for (int i = 0; i < Program.getPlayerSockets().Length; i++)
+            {
+                if (client == 2)
+                {
+                    Console.WriteLine(x + "," + z + " speed: " + speed);
+                }
+                Program.getPlayerSockets()[i].writer.WriteLine("player&" + client + "&" + x + "&" + z + "&" + size + "&" + speed + "&" + direction + "&" + username);
+            }
         }
     }
 
@@ -448,8 +522,10 @@ namespace SwarchServer
 
         public void SendData()
         {
-            Program.getPlayerSockets()[0].writer.WriteLine("pellet&" + pellet + "&" + x + "&" + z);
-            Program.getPlayerSockets()[1].writer.WriteLine("pellet&" + pellet + "&" + x + "&" + z);
+            for (int i = 0; i < Program.getPlayerSockets().Length; i++)
+            {
+                Program.getPlayerSockets()[i].writer.WriteLine("pellet&" + pellet + "&" + x + "&" + z);
+            }
         }
     }
 }
