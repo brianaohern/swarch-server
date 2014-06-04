@@ -101,26 +101,28 @@ namespace SwarchServer
             timer.Elapsed += new ElapsedEventHandler(GameLoop);
             timer.Start();
 
-            Thread.CurrentThread.Join(); // Wait until other threads cease before closing program
+            //Thread.CurrentThread.Join(); // Wait until other threads cease before closing program
         }
 
         // Main gameplay loop
         public static void GameLoop(object source, ElapsedEventArgs e)
         {
-            
-            // Send player positions every 100 milliseconds
-            if (watch.ElapsedMilliseconds >= 100)
+            if (!gameWon)
             {
-                players[0].Update();
-                players[1].Update();
+                // Send player positions every 100 milliseconds
+                if (watch.ElapsedMilliseconds >= 100)
+                {
+                    players[0].Update();
+                    players[1].Update();
 
-                players[0].SendData();
-                players[1].SendData();
-                watch.Restart();
+                    players[0].SendData();
+                    players[1].SendData();
+                    watch.Restart();
+                }
+
+                CheckPlayerCollisions();
+                CheckPelletCollisions();
             }
-
-            CheckPlayerCollisions();
-            CheckPelletCollisions();
         }
 
         // Check if the two players collided with each other
@@ -183,10 +185,9 @@ namespace SwarchServer
         {
             try
             {
-                while (true)
+                while (!Program.gameWon)
                 {
                     PlayerSocket[] sockets = Program.getPlayerSockets();
-                    Console.WriteLine("Service for client " + client);
                     data = sockets[client - 1].reader.ReadLine();
                     tempData = data.Split('&')[0];
 
@@ -272,7 +273,8 @@ namespace SwarchServer
                 {
                     Console.WriteLine("No username match. Create a new user. Send data to client.");
                     Program.db.Insert("USERS", insertData);
-                    Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + username + "&" + password);
+                    Program.getPlayerSockets()[client - 1].writer.WriteLine("login&" + client + "&" + username);
+                    Program.getPlayerSockets()[client].writer.WriteLine("login&" + client + "&" + username);
                     Program.players[client - 1].username = username;
                 }
             }
@@ -291,6 +293,7 @@ namespace SwarchServer
                 return;
             }
             tempData = data.Split('&')[1];
+            Program.players[client - 1].direction = Convert.ToInt32(tempData);
             if (tempData == "0")
             {
                 Program.players[client - 1].xvelocity = 0;
@@ -327,13 +330,15 @@ namespace SwarchServer
         public float xvelocity;
         public float zvelocity;
         public float size;
+        public enum Directions { up, down, left, right }
+        public int direction;
 
         public PlayerObject(int clientNumber)
         {
             client = clientNumber;
             username = "";
             score = 0;
-            x = Program.random.Next(-29, 30);
+            x = Program.random.Next(-14, 15);
             z = Program.random.Next(-14, 15);
             prevx = x;
             prevz = z;
@@ -341,6 +346,7 @@ namespace SwarchServer
             xvelocity = 0;
             zvelocity = -speed;
             size = 1;
+            direction = (int)Directions.down;
         }
 
         public void Update()
@@ -351,7 +357,7 @@ namespace SwarchServer
             x += xvelocity / 10; // Velocity divided by fps
             z += zvelocity / 10;
 
-            if (x < (-30.5 + size/2) || x > (30.5 - size/2) || z < (-15.5 + size/2) || z > (15.5 - size/2))
+            if (x < (-15.5 + size/2) || x > (15.5 - size/2) || z < (-15.5 + size/2) || z > (15.5 - size/2))
             {
                 ResetPosition();
             }
@@ -359,7 +365,7 @@ namespace SwarchServer
 
         public void ResetPosition()
         {
-            x = Program.random.Next(-29, 30);
+            x = Program.random.Next(-14, 15);
             z = Program.random.Next(-14, 15);
             prevx = x;
             prevz = z;
@@ -393,9 +399,9 @@ namespace SwarchServer
             speed = 4 * speed / 5;
             if (type == 1) // Ate a player
             {
-                score += 2;
-                Program.getPlayerSockets()[0].writer.WriteLine("score&" + client + "&" + 2);
-                Program.getPlayerSockets()[1].writer.WriteLine("score&" + client + "&" + 2);
+                score += 10;
+                Program.getPlayerSockets()[0].writer.WriteLine("score&" + client + "&" + 10);
+                Program.getPlayerSockets()[1].writer.WriteLine("score&" + client + "&" + 10);
             }
             else if (type == 2) // Ate a pellet
             {
@@ -406,7 +412,7 @@ namespace SwarchServer
 
             SendData();
 
-            if (score >= 10)
+            if (score >= 100)
             {
                 Program.getPlayerSockets()[0].writer.WriteLine("winner&" + client);
                 Program.getPlayerSockets()[1].writer.WriteLine("winner&" + client);
@@ -416,8 +422,8 @@ namespace SwarchServer
 
         public void SendData()
         {
-            Program.getPlayerSockets()[0].writer.WriteLine("player&" + client + "&" + x + "&" + z + "&" + size + "&" + speed);
-            Program.getPlayerSockets()[1].writer.WriteLine("player&" + client + "&" + x + "&" + z + "&" + size + "&" + speed);
+            Program.getPlayerSockets()[0].writer.WriteLine("player&" + client + "&" + x + "&" + z + "&" + size + "&" + speed + "&" + direction + "&" + username);
+            Program.getPlayerSockets()[1].writer.WriteLine("player&" + client + "&" + x + "&" + z + "&" + size + "&" + speed + "&" + direction + "&" + username);
         }
     }
 
@@ -435,7 +441,7 @@ namespace SwarchServer
 
         public void NewPosition()
         {
-            x = Program.random.Next(-29, 30);
+            x = Program.random.Next(-14, 15);
             z = Program.random.Next(-14, 15);
             SendData();
         }
